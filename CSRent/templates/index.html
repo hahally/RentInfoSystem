@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>FishRent</title>
+    <script src="static/js/socket.io.js"></script>
+    <script src="static/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+　　　　　　　//连接后发送日志
+            socket.on('connect', function(){
+                console.log('connected')
+            });
+            //断开后发送日志
+            socket.on('disconnect', function () {
+                console.log('disconnect');
+            });
+　　　　　　　//点击开始后，执行程序
+            $('#btn').click(function() {
+                socket.emit('start_spider', {data: 'Start spider'});
+            });
+
+　　　　　　  //接收后端发送的提示消息
+            socket.on('analyse', function(msg) {
+                var obj = eval(msg);
+                var result = obj["data"];
+                $('#log').append('<br>' + result);
+            });
+
+            //收到后台可以获取最终结果的消息后，新增按钮，点击可以获取结果
+            socket.on('get_result', function(msg) {
+                var obj = eval(msg);
+                var result = obj["data"];
+                $('#log').append('<br>' + result);
+                $('#cnt').append("<br> <button id=\"get_res\">获取结果</button>");
+                $('#get_res').click(function() {
+                    //在当前窗口打开界面
+                    window.open('/Get_result')
+                    //在新窗口打开界面，二者选一个就好
+                    //window.location.href = '/Get_result'
+                });
+            });
+
+        });
+    </script>
+</head>
+
+
+<body>
+
+    <div id="cnt">
+        <button id="btn">开始爬虫</button>
+        <h4 id="log"></h4>
+    </div>
+
+</body>
+
+</html>
